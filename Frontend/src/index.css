@@ -1,19 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #f7f9fc;
-  --text-main: #2d3748;
-  --text-muted: #718096;
-  --primary: #0077b6;
-  --primary-hover: #03045e;
-  --primary-light: #caf0f8;
-  --surface: #ffffff;
-  --border: #e2e8f0;
+  --bg-color: #fbf9f5;
+  --text-main: #1b1c1a;
+  --text-muted: #414846;
+  --primary: #45645e;
+  --primary-hover: #2d4c46;
+  --primary-light: #c7eae1;
+  --on-primary: #ffffff;
+  --primary-container: #84a59d;
+  --on-primary-container: #1b3b35;
+  --surface: #fbf9f5;
+  --surface-container-low: #f5f3ef;
+  --surface-container-high: #eae8e4;
+  --border: #c1c8c5;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --radius: 12px;
-  --danger: #e53e3e;
-  --success: #38a169;
+  --radius: 16px;
+  --danger: #ba1a1a;
+  --success: #45645e;
+
+  /* Secondary / Tertiary */
+  --secondary: #42636f;
+  --secondary-container: #c5e8f6;
+  --tertiary: #5e5c74;
+  --tertiary-container: #9e9bb5;
 }
 
 body {
@@ -62,6 +73,63 @@ a:hover {
 
 .card:hover {
   box-shadow: var(--shadow-md);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 1);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Typography from Design System */
+.font-display-lg {
+  font-family: 'Poppins', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+.font-headline-lg {
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+}
+.font-headline-md {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+}
+.font-body-lg {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+.font-body-md {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+.font-label-md {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+}
+.font-label-sm {
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.04em;
 }
 
 /* Form utilities */
@@ -135,16 +203,31 @@ a:hover {
   background-color: var(--primary-light);
 }
 
-/* Layout */
-.app-layout {
-  display: flex;
-  min-height: 100vh;
+/* Layout Responsiveness */
+.main-content-area {
+  padding: 2rem;
+  margin-left: 0;
+  transition: margin-left 0.3s;
 }
 
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  margin-left: 250px;
+@media (min-width: 1024px) {
+  .main-content-area {
+    margin-left: 256px;
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sidebar-desktop {
+    display: none !important;
+  }
+  .hidden-mobile {
+    display: none !important;
+  }
 }
 
 .auth-layout {

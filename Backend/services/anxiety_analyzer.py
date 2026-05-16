@@ -47,7 +47,7 @@ async def analyze_session_anxiety(session_id: str, db) -> Dict[str, float]:
         )
 
         # Using ChatGroq as requested by the user
-        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.0, api_key=settings.groq_api_key)
+        llm = ChatGroq(model=settings.groq_model, temperature=0.0, api_key=settings.groq_api_key)
         structured_llm = llm.with_structured_output(AnxietyScores)
 
         response = structured_llm.invoke([

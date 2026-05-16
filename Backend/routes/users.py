@@ -34,3 +34,55 @@ async def update_profile(
 ):
     """Update optional profile fields: age, gender, location, preferred_language, reason_for_using_app."""
     return await user_service.update_user_profile(current_user, data)
+
+
+from pydantic import BaseModel
+
+class InfluenceEntry(BaseModel):
+    topic: str
+    content: str
+
+@router.post("/influence")
+def save_influence(entry: InfluenceEntry, current_user: str = Depends(get_current_user)):
+    from rag_pipeline.indexer import memory_indexer
+    from rag_pipeline.schemas import MemoryDocument, MemoryType
+    
+    doc = MemoryDocument(
+        user_id=current_user,
+        content=f"Influence Factor: {entry.topic}. Notes: {entry.content}",
+        memory_type=MemoryType.emotional_state,
+        source="dashboard_influence",
+        importance=0.8
+    )
+    memory_indexer.ingest(doc)
+    return {"status": "success", "message": "Influence entry indexed and saved."}
+
+@router.get("/influence")
+def get_influences(current_user: str = Depends(get_current_user)):
+    from rag_pipeline.vector_store import vector_store_manager
+    collection = vector_store_manager.get_collection(current_user)
+    results = collection.get(where={"source": "dashboard_influence"})
+    
+    entries = []
+    if results and results.get("documents"):
+        for i in range(len(results["documents"])):
+            content = results["documents"][i]
+            metadata = results["metadatas"][i]
+            
+            topic = "General"
+            notes = content
+            if "Influence Factor:" in content and ". Notes:" in content:
+                parts = content.split(". Notes:")
+                topic = parts[0].replace("Influence Factor:", "").strip()
+                notes = parts[1].strip()
+            
+            entries.append({
+                "id": results["ids"][i],
+                "topic": topic,
+                "content": notes,
+                "timestamp": metadata.get("timestamp", ""),
+            })
+            
+    # Sort by timestamp descending
+    entries.sort(key=lambda x: x["timestamp"], reverse=True)
+    return {"entries": entries}

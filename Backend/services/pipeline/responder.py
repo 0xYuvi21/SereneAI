@@ -23,7 +23,7 @@ class AgentResponder(ILLMResponder):
 
     def __init__(self) -> None:
         self.llm = ChatGroq(
-            model="llama-3.3-70b-versatile",
+            model=settings.groq_model,
             api_key=settings.groq_api_key,
             temperature=0.7,
             max_tokens=512,

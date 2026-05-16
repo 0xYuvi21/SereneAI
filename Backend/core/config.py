@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = Field(default=30)
     groq_api_key: str
+    groq_model: str = Field(default="llama-3.3-70b-versatile")
     hf_token: str
 
     model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")

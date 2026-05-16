@@ -95,7 +95,7 @@ async def end_session(
     await redis.delete(f"chat_history:{session_id}")
 
     # Generate new AI insights based on the updated dashboard stats
-    await generate_dashboard_insights(user_id, db)
+    # await generate_dashboard_insights(user_id, db)
 
     return {
         "message": "Session ended successfully",
