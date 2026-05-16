@@ -1,6 +1,5 @@
 from typing import List, Optional
 from rag_pipeline.schemas import RetrievalQuery, RetrievalResult
-from rag_pipeline.embeddings import get_embedding_model
 from rag_pipeline.vector_store import vector_store_manager
 import logging
 
@@ -33,44 +32,28 @@ class MemoryRetriever:
         Retrieve top-k semantically similar memories, optionally pre-filtered
         by metadata. Results below min_score are discarded.
         """
-        embedding_model = get_embedding_model()
-        collection = vector_store_manager.get_collection(query.user_id)
-
-        if collection.count() == 0:
-            logger.info(f"[Retriever] No memories yet for user={query.user_id}")
-            return []
-
-        query_embedding = embedding_model.embed_query(query.query)
+        vector_store = vector_store_manager.get_vector_store(query.user_id)
         where_filter = self._build_where_filter(query)
 
-        n_results = min(query.top_k, collection.count())
-        kwargs: dict = {
-            "query_embeddings": [query_embedding],
-            "n_results": n_results,
-            "include": ["documents", "metadatas", "distances"],
-        }
-        if where_filter:
-            kwargs["where"] = where_filter
-
-        raw = collection.query(**kwargs)
+        # similarity_search_with_relevance_scores returns (Document, score)
+        # where score is usually 0-1 (relevance score)
+        docs_with_scores = vector_store.similarity_search_with_relevance_scores(
+            query.query,
+            k=query.top_k,
+            filter=where_filter,
+        )
 
         results: List[RetrievalResult] = []
-        for doc, meta, dist in zip(
-            raw["documents"][0],
-            raw["metadatas"][0],
-            raw["distances"][0],
-        ):
-            # ChromaDB cosine distance ∈ [0, 2]; convert to similarity ∈ [0, 1]
-            score = round(1.0 - (dist / 2.0), 4)
+        for doc, score in docs_with_scores:
             if score >= query.min_score:
                 results.append(
                     RetrievalResult(
-                        content=doc,
-                        memory_type=meta.get("memory_type", "unknown"),
-                        emotion=meta.get("emotion") or None,
-                        timestamp=meta.get("timestamp", ""),
-                        score=score,
-                        source=meta.get("source", "chat"),
+                        content=doc.page_content,
+                        memory_type=doc.metadata.get("memory_type", "unknown"),
+                        emotion=doc.metadata.get("emotion") or None,
+                        timestamp=doc.metadata.get("timestamp", ""),
+                        score=round(float(score), 4),
+                        source=doc.metadata.get("source", "chat"),
                     )
                 )
 

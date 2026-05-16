@@ -60,8 +60,8 @@ def save_influence(entry: InfluenceEntry, current_user: str = Depends(get_curren
 @router.get("/influence")
 def get_influences(current_user: str = Depends(get_current_user)):
     from rag_pipeline.vector_store import vector_store_manager
-    collection = vector_store_manager.get_collection(current_user)
-    results = collection.get(where={"source": "dashboard_influence"})
+    vector_store = vector_store_manager.get_vector_store(current_user)
+    results = vector_store.get(where={"source": "dashboard_influence"})
     
     entries = []
     if results and results.get("documents"):

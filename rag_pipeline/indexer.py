@@ -1,7 +1,6 @@
 import hashlib
 from typing import List
 from rag_pipeline.schemas import MemoryDocument
-from rag_pipeline.embeddings import get_embedding_model
 from rag_pipeline.vector_store import vector_store_manager
 import logging
 
@@ -37,18 +36,15 @@ class MemoryIndexer:
 
     def ingest(self, doc: MemoryDocument) -> str:
         """Embed and upsert a memory document. Returns the doc_id."""
-        embedding_model = get_embedding_model()
-        collection = vector_store_manager.get_collection(doc.user_id)
+        vector_store = vector_store_manager.get_vector_store(doc.user_id)
 
         doc_id = self._generate_doc_id(doc)
-        embedding = embedding_model.embed_query(doc.content)
         metadata = self._build_metadata(doc)
 
-        collection.upsert(
-            ids=[doc_id],
-            embeddings=[embedding],
-            documents=[doc.content],
+        vector_store.add_texts(
+            texts=[doc.content],
             metadatas=[metadata],
+            ids=[doc_id],
         )
         logger.info(
             f"[Indexer] Stored memory [{metadata['memory_type']}] "
